@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     env:      
       DOCKER_REGISTRY: quay.io      
-      DOCKER_IMAGE: coryallegory/kube-ops-view      
+      DOCKER_IMAGE: coryallegory/k8dash
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_TARGET_PLATFORM: linux/arm64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
