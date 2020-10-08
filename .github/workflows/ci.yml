@@ -12,11 +12,18 @@ jobs:
       DOCKER_IMAGE: coryallegory/k8dash
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_TARGET_PLATFORM: linux/arm64
     steps:
       -
         name: Checkout
         uses: actions/checkout@v2
+      -
+        name: Prepare
+        if: success()
+        id: prepare
+        run: |
+          echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
+          echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
+          echo ::set-output name=build_number::${GITHUB_RUN_NUMBER}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -41,8 +48,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            ${{env.DOCKER_IMAGE}}:latest
-            ${{env.DOCKER_IMAGE}}:1.0.${GITHUB_RUN_NUMBER}
+            ${{ steps.prep.outputs.docker_image }}:latest
+            ${{ steps.prep.outputs.docker_image }}:1.0.${{ steps.prep.outputs.build_number }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
