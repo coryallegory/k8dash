@@ -41,8 +41,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            "${DOCKER_IMAGE}:latest"
-            "${DOCKER_IMAGE}:1.0.${GITHUB_RUN_NUMBER}"
+            ${{env.DOCKER_IMAGE}}:latest
+            ${{env.DOCKER_IMAGE}}:1.0.${GITHUB_RUN_NUMBER}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
