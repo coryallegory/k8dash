@@ -19,7 +19,7 @@ jobs:
       -
         name: Prepare
         if: success()
-        id: prepare
+        id: prep
         run: |
           echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
           echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
