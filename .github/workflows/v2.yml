@@ -7,9 +7,13 @@ on:
 
 jobs:
   build:
-    env:
-      VERSION: $(basename $GITHUB_REF)
     runs-on: ubuntu-latest
+    env:      
+      VERSION: $(basename $GITHUB_REF)
+      DOCKER_REGISTRY: quay.io      
+      DOCKER_IMAGE: coryallegory/k8dash
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
