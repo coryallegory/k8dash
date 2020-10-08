@@ -29,24 +29,20 @@ jobs:
         with:
           version: latest
       -
-        name: Prepare
-        if: success()
-        id: prepare
-        run: |
-          echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
-          echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}
-          echo ::set-output name=version::${GITHUB_RUN_NUMBER}
-      -
         name: Docker Login
         if: success()
         run: |
           echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
       -
-        name: Run Buildx (push image)
-        if: success()
-        run: |
-          docker buildx build \
-            --platform ${{ steps.prepare.outputs.docker_platform }} \
-            --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
-            --file ./Dockerfile \
-            --output type=image,push=true .
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${DOCKER_IMAGE}:latest
+            ${DOCKER_IMAGE}:1.0.${GITHUB_RUN_NUMBER}
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
