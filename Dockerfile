@@ -2,7 +2,7 @@
 FROM node:12.4.0-alpine as build-deps
 WORKDIR /usr/src/app
 COPY client/package.json client/package-lock.json ./
-RUN npm i
+RUN npm i -dd
 
 COPY client/ ./
 RUN npm run build
@@ -17,7 +17,7 @@ RUN chown -R node:node /usr/src/app/
 EXPOSE 4654
 
 COPY server/package.json server/package-lock.json ./
-RUN npm i --production
+RUN npm i --production -dd
 
 COPY --from=build-deps /usr/src/app/build /usr/src/app/public
 COPY /server ./
