@@ -4,10 +4,15 @@ WORKDIR /usr/src/app
 COPY client/package.json client/package-lock.json ./
 RUN npm i
 
+# Stage 2 - the build react app
+FROM --platform=$BUILDPLATFORM node:12.4.0-alpine as build
+COPY --from=build-deps /usr/src/app/node_modules /usr/src/app/node_modules
+WORKDIR /usr/src/app
+
 COPY client/ ./
 RUN npm run build
 
-# Stage 2 - the production environment
+# Stage 3 - the production environment
 FROM node:12.4.0-alpine
 
 RUN apk add --no-cache tini
@@ -19,7 +24,7 @@ EXPOSE 4654
 COPY server/package.json server/package-lock.json ./
 RUN npm i --production
 
-COPY --from=build-deps /usr/src/app/build /usr/src/app/public
+COPY --from=build /usr/src/app/build /usr/src/app/public
 COPY /server ./
 
 # USER 1000 is the "node" user
