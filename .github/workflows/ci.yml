@@ -50,7 +50,6 @@ jobs:
           tags: |
             ${{ steps.prep.outputs.docker_image }}:latest
             ${{ steps.prep.outputs.docker_image }}:1.0.${{ steps.prep.outputs.build_number }}
-            ${{ steps.prep.outputs.docker_image }}:sha-${GITHUB_SHA::8}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
