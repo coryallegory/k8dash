@@ -5,7 +5,7 @@ COPY client/package.json client/package-lock.json ./
 RUN npm i
 
 # Stage 2 - the build react app
-FROM --platform=$BUILDPLATFORM node:12.4.0-alpine as build
+FROM node:12.4.0-alpine as build
 COPY --from=build-deps /usr/src/app/node_modules /usr/src/app/node_modules
 WORKDIR /usr/src/app
 
