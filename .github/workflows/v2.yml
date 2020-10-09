@@ -33,7 +33,7 @@ jobs:
       - name: Build Container Image
         run: |
           docker buildx build \
-            --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64 \
+            --platform linux/arm64 \
             --tag coryallegory/k8dash:latest \
             --tag coryallegory/k8dash:${{ env.VERSION }} \
             -f ./Dockerfile \
