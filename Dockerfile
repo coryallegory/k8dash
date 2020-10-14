@@ -1,4 +1,4 @@
-# Stage 1 - the build react app
+# Stage 1 - install node dependencies
 FROM node:12.4.0-alpine as build-deps
 WORKDIR /usr/src/app
 COPY client/package.json client/package-lock.json ./
