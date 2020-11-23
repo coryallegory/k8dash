@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import {Base64} from 'js-base64';
-import {request, post, stream, apiFactory, apiFactoryWithNamespace} from './apiProxy';
+import {request, post, stream, apiFactory, apiFactoryWithNamespace, requestText} from './apiProxy';
 import log from '../utils/log';
-import { K8sEvent, Namespace, TODO, Metrics, PersistentVolume, Node, Pod, ClusterRole, ClusterRoleBinding, ConfigMap, RoleBinding, Secret, ServiceAccount, StorageClass } from '../utils/types';
+import {K8sEvent, Namespace, TODO, Metrics, PersistentVolume, Node, Pod, ClusterRole, ClusterRoleBinding, ConfigMap, RoleBinding, Secret, ServiceAccount, StorageClass} from '../utils/types';
 
 type DataCallback<T> = (data: T) => void;
+type MetricsCallback = DataCallback<Metrics[]>;
 
 const configMap = apiFactoryWithNamespace<ConfigMap>('', 'v1', 'configmaps');
 const event = apiFactoryWithNamespace<K8sEvent>('', 'v1', 'events');
@@ -40,6 +41,7 @@ const apis = {
     testAuth,
     getRules,
     logs,
+    logsAll,
     swagger,
     exec,
     metrics: metricsFactory(),
@@ -102,10 +104,11 @@ async function apply(body: TODO): Promise<TODO> {
 
 function metricsFactory() {
     return {
-        nodes: (cb: DataCallback<Metrics[]>) => metrics('/apis/metrics.k8s.io/v1beta1/nodes', cb),
-        node: (name: string, cb: DataCallback<Metrics[]>) => metrics(`/apis/metrics.k8s.io/v1beta1/nodes/${name}`, cb),
-        pods: (namespace: string | undefined, cb: DataCallback<Metrics[]>) => metrics(url(namespace), cb),
-        pod: (namespace: string, name: string, cb: DataCallback<Metrics[]>) => metrics(`/apis/metrics.k8s.io/v1beta1/namespaces/${namespace}/pods/${name}`, cb),
+        nodes: (cb: MetricsCallback) => metrics('/apis/metrics.k8s.io/v1beta1/nodes', cb),
+        node: (name: string, cb: MetricsCallback) => metrics(`/apis/metrics.k8s.io/v1beta1/nodes/${name}`, cb),
+        pods: (namespace: string | undefined, cb: MetricsCallback) => metrics(url(namespace), cb),
+        // eslint-disable-next-line max-len
+        pod: (namespace: string, name: string, cb: MetricsCallback) => metrics(`/apis/metrics.k8s.io/v1beta1/namespaces/${namespace}/pods/${name}`, cb),
     };
 
     function url(namespace?: string) {
@@ -120,7 +123,7 @@ function oidcFactory() {
     };
 }
 
-function metrics(url: string, cb: DataCallback<Metrics[]>) {
+function metrics(url: string, cb: MetricsCallback) {
     let isApiRequestInProgress = false;
     const handel = setInterval(getMetrics, 10000);
     getMetrics();
@@ -158,6 +161,11 @@ function exec(namespace: string, name: string, container: string, cb: DataCallba
     const url = `/api/v1/namespaces/${namespace}/pods/${name}/exec?container=${container}&command=sh&stdin=1&stderr=1&stdout=1&tty=1`;
     const additionalProtocols = ['v4.channel.k8s.io', 'v3.channel.k8s.io', 'v2.channel.k8s.io', 'channel.k8s.io'];
     return stream(url, cb, {additionalProtocols, isJson: false});
+}
+
+function logsAll(namespace: string, name: string, container: string, showPrevious: boolean) {
+    const url = `/api/v1/namespaces/${namespace}/pods/${name}/log?container=${container}&previous=${showPrevious}`;
+    return requestText(url);
 }
 
 function logs(namespace: string, name: string, container: string, tailLines: number, showPrevious: boolean, cb: DataCallback<string[]>) {

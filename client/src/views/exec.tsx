@@ -4,7 +4,7 @@ import Select from 'react-select';
 import {Terminal} from 'xterm';
 import Base from '../components/base';
 import api from '../services/api';
-import { Pod, TODO } from '../utils/types';
+import {Pod, TODO} from '../utils/types';
 
 type Props = {
     namespace: string;
@@ -96,7 +96,7 @@ export default class Exec extends Base<Props, State> {
         return (
             <div id='content'>
                 <div id='header'>
-                    <span className='header_label'>{['Pod Logs', namespace, name].join(' • ')}</span>
+                    <span className='header_label'>{['Pod Exec', namespace, name].join(' • ')}</span>
 
                     <div className='select_namespace'>
                         <Select
